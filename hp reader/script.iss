@@ -63,7 +63,7 @@ Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\doc.pdf"; Dest
 Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\hp reader.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\example\*"; DestDir: "{app}\example"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\examples\*"; DestDir: "{app}\examples"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]        
