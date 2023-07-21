@@ -18,18 +18,21 @@ int main(int argc, char** argv) {
 			exitProg(EXIT_FAILURE);
 		}
 		
-		puts("Enter hp file path: ");
+		puts("[+] Enter hp file path: ");
 		scanf("%254s", hpfile);
 
 		*(hpfile + HP_FILENAME_SIZE - 1) = NULL;
-		puts("\n");
-		isMemAllocated++; // controll last free memory
+#ifdef _WIN32
+		system("cls");
+#else
+		system("clear");
+#endif
+		isMemAllocated = TRUE; // controll last free memory
 	}
 	else
 		hpfile = argv[1];
 
 	FILE* fp;
-	int c;
 	char* buff = (char*)malloc(fileSize(hpfile));
 	// ERROR HANDLING
 	if (buff == NULL) {
@@ -44,9 +47,10 @@ int main(int argc, char** argv) {
 		exitProg(EXIT_FAILURE);
 	}
 	
+	char c;
 	int i = 0;
 	while ((c = getc(fp)) != EOF)
-		*(buff + i) = c, i++;
+		*(buff + i++) = c;
 	// end of string
 	*(buff + i) = NULL;
 	
@@ -56,7 +60,12 @@ int main(int argc, char** argv) {
 	// code
 	err = isHexPatchFile(hpfile, buff);
 	// get included file name inside of the hp file
-	const char* const getIncFnm = getIncludedFile(buff);
+	const char* getIncFnm = getIncludedFile(buff);
+	if (getIncFnm == MEM_ALLOC_ERR) {
+		puts("[!] Error: RAM is full!\n[?] Help: Free your RAM memory by closing some app");
+		exitProg(EXIT_FAILURE);
+	}
+	// else
 	if (err != SUCCESS)
 	{
 		if (err == INCLUDE_NOT_FOUND) {
@@ -100,7 +109,7 @@ int main(int argc, char** argv) {
 
 	for (register int i = 0; i < numberOfCodes; i++) {
 		// Get code from file
-		currCode = getCode(hpfile, i);
+		currCode = getCode(hpfile, buff, i);
 		// Error handling
 		if (currCode == NULL)
 			puts("[??] Syntax warning: Code name is NULL are you sure about that!");
@@ -108,7 +117,7 @@ int main(int argc, char** argv) {
 		printf("[+] GET Code: %s\n", currCode);
 
 		// Get offset from file
-		currOffset = getOffset(hpfile, i);
+		currOffset = getOffset(hpfile, buff, i);
 		// Error handling
 		if (currOffset == NULL)
 		{
@@ -120,7 +129,7 @@ int main(int argc, char** argv) {
 		printf("[+] GET Offset: %s\n", currOffset);
 		
 		// Get replaced from file
-		currReplaced = getReplaced(hpfile, i);
+		currReplaced = getReplaced(hpfile, buff, i);
 		// Error handling
 		if (currReplaced == NULL)
 		{
@@ -130,19 +139,20 @@ int main(int argc, char** argv) {
 		}
 		// else
 		printf("[+] GET Replaced: %s\n\n", currReplaced);
-
+		
+		// Modify process
 		puts("[*] Modifying...");
 
 		OFFSET = strHOffset2Long(currOffset);
 		REPLACED = strh2hex(currReplaced, &rLen);
 
-		// ERROR HANDLING
-		if (OFFSET == -1 || OFFSET == -2) {
+		// ERROR HANDLING (OFFSET == -1 || OFFSET == -2)
+		if (OFFSET < SUCCESS) {
 			printf("[!] Syntax error: Failed to convert Offset\n[?] Help: check your OFFSET of %s Code\n", currCode);
 			exitProg(EXIT_FAILURE);
 		}
 		// ERROR HANDLING
-		if (REPLACED == -1 || REPLACED == -2) {
+		if (REPLACED < SUCCESS) {
 			printf("[!] Syntax error: Failed to convert Replaced\n[?] Help: Check your REPLACED of %s Code\n", currCode);
 			exitProg(EXIT_FAILURE);
 		}
@@ -190,6 +200,10 @@ int main(int argc, char** argv) {
 
 void exitProg(int ret)
 {
+#ifdef _WIN32
 	system("pause");
+#else
+	system("echo \"Press enter to continue!\" && read");
+#endif
 	exit(ret);
 }

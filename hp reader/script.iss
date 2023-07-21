@@ -9,7 +9,6 @@
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
-; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{DF166C2C-B4CB-49CC-8561-F546C54C2EF0}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -24,8 +23,6 @@ ChangesAssociations=yes
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
 LicenseFile=D:\C & C++ Projects\hp reader\hp reader\LICENSE
-; Uncomment the following line to run in non administrative install mode (install for current user only.)
-;PrivilegesRequired=lowest
 OutputBaseFilename=HP Reader Setup
 SetupIconFile=D:\C & C++ Projects\hp reader\hp reader\icon.ico
 Compression=lzma
@@ -45,20 +42,6 @@ begin
   MsgBox('HP Reader developer:' #13#13 'Bye bye!', mbInformation, MB_OK);
 end;
 
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-begin
-  case CurUninstallStep of
-    usUninstall:
-      begin
-        MsgBox('HP Reader developer:' #13#13 'Uninstall is about to start.', mbInformation, MB_OK)
-      end;
-    usPostUninstall:
-      begin
-        MsgBox('HP Reader developer:' #13#13 'Uninstall just finished.', mbInformation, MB_OK);
-      end;
-  end;
-end;
-
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
 
@@ -69,17 +52,18 @@ en.BeveledLabel=English
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-locale-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-math-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-runtime-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-stdio-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\api-ms-win-crt-string-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\doc.pdf"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\hp reader.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1\example\*"; DestDir: "{app}\example"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-locale-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-math-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-runtime-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-stdio-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\api-ms-win-crt-string-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\doc.pdf"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\hp reader.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\C & C++ Projects\hp reader\hp reader\hp reader v1.0.0\example\*"; DestDir: "{app}\example"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]        

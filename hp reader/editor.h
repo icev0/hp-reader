@@ -1,6 +1,6 @@
 #ifndef _MIN_HEX_EDITOR
 #define _MIN_HEX_EDITOR
-// Minimal Version of HexEditor by THE ICE
+// Minimal HexEditor by THE ICE
 
 #ifndef _INC_STDIO
 #include <stdio.h>

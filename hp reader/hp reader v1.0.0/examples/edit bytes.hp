@@ -1,0 +1,9 @@
+HexPatch v1
+
+INCLUDE: libcocos2dcpp.so
+
+CODE: ELF File type
+OFFSET: 0x0
+REPLACED: 7f 45 4c 46
+
+END

@@ -14,7 +14,7 @@
 #define HP_FILENAME_SIZE	255
 
 #define NEW_LINE 			'\n'
-#define SPECIAL_KEY			'0'
+#define SPECIAL_CHR			'0'
 // Errors
 #define MEM_ALLOC_ERR		-4
 #define FILE_NOT_FOUND 		-3
@@ -32,13 +32,64 @@
 #define OFFSET_DEF_LEN		8
 #define REPLACED_DEF_LEN	10
 
-char* getIncludedFile(char *buff) {
-	int address, pos;
+int getNumberOfCodes(char* fname) {
+	FILE* fp;
+	char str[20];
+	int counter = 0;
+
+	fp = fopen(fname, "r");
+	if (fp == NULL) return -1;
+
+	while (fscanf(fp, "%19s", str) == 1)
+		if (strcmp(str, "CODE:") == 0)
+			counter++;
+
+	fclose(fp);
+	return counter;
+}
+
+int getNumberOfOffsets(char* fname) {
+	FILE* fp;
+	char str[20];
+	int counter = 0;
+
+	fp = fopen(fname, "r");
+	if (fp == NULL) return -1;
+
+	while (fscanf(fp, "%19s", str) == 1)
+		if (strcmp(str, "OFFSET:") == 0)
+			counter++;
+
+	fclose(fp);
+	return counter;
+}
+
+int getNumberOfReplaceds(char* fname) {
+	FILE* fp;
+	char str[20];
+	int counter = 0;
+
+	fp = fopen(fname, "r");
+	if (fp == NULL) return -1;
+
+	while (fscanf(fp, "%19s", str) == 1)
+		if (strcmp(str, "REPLACED:") == 0)
+			counter++;
+
+	fclose(fp);
+	return counter;
+}
+
+char* getIncludedFile(char* buff) {
 	char* result = strstr(buff, INC_DEF);
-	pos = result - buff;
-	int substrLength = strlen(buff) - pos;
-	char *nwBuffer = (char *)malloc(substrLength);
-	address = pos + INC_DEF_LEN;
+	// ERROR HANDLING
+	if (!result) return NULL;
+	int pos = result - buff,
+		substrLength = strlen(buff) - pos,
+		address = pos + INC_DEF_LEN;
+
+	char* nwBuffer = (char*)malloc(substrLength);
+	if (nwBuffer == NULL) return MEM_ALLOC_ERR;
 
 	int i = 0, c = address;
 	while (i < substrLength+1)
@@ -60,7 +111,7 @@ int isHexPatchFile(char* fn, char* buff) {
 		free(fname);
 		return FILE_NOT_FOUND;
 	}
-	if (strcmp(VERSION_U, getHPVersion(buff)) == 0) return VERSION_NOT_FOUND;
+	if (strcmp(VERSION_1, getHPVersion(buff)) != 0) return VERSION_NOT_FOUND;
 	// if there is any code
 	if (strstr(buff, CODE_DEF))
 		if (getNumberOfCodes(fn) != getNumberOfOffsets(fn) || getNumberOfCodes(fn) != getNumberOfReplaceds(fn))
@@ -68,21 +119,15 @@ int isHexPatchFile(char* fn, char* buff) {
 	return SUCCESS;
 }
 
-char* getCode(char *filename, int index) {
+char* getCode(char* filename, char *buff, int index) {
 	int nCode = getNumberOfCodes(filename);
 
 	if (index > nCode) return "[!] Syntax error: Error with index";
 
-	FILE* fp = fopen(filename, "r");
-	char *buffer = (char*)malloc(fileSize(filename));
+	char* buffer = (char*)malloc(strlen(buff)+1);
 	if (buffer == NULL) return MEM_ALLOC_ERR;
-	int c, i = 0;
-
-	while ((c = getc(fp)) != EOF)
-		*(buffer + i) = c, i++;
-	*(buffer +i) = NULL;
-	fclose(fp);
-
+	strcpy(buffer, buff);
+	
 	char* result;
 	int searchLen = CODE_DEF_LEN;
 
@@ -90,45 +135,43 @@ char* getCode(char *filename, int index) {
 		result = strstr(buffer, CODE_DEF);
 		if (!result) return NULL;
 
-		int pos = result - buffer;
-		int subLen = strlen(buffer) - pos;
-		int address = pos + searchLen;
+		int pos = result - buffer,
+			subLen = strlen(buffer) - pos,
+			address = pos + searchLen;
 
 		if (n == index) {
-			char* retBuffer = (char *)malloc(subLen);
+			char* retBuffer = (char*)malloc(subLen);
 			if (retBuffer == NULL) return MEM_ALLOC_ERR;
 
-			for (int c = address, j = 0; j < subLen; j++, c++) {
-				if (*(buffer + c) == NEW_LINE) {
+			int c = address, j = 0;
+			while (j < subLen)
+			{
+				if (*(buffer + c++) == NEW_LINE) {
+					free(buffer);
 					*(retBuffer + j) = NULL;
 					return retBuffer;
 				}
-				*(retBuffer + j) = *(buffer + c);
+				*(retBuffer + j++) = *(buffer + c - 1);
 			}
 		}
 		else {
 			for (int j = 0; j < searchLen; j++) 
-				*(result + j) = SPECIAL_KEY;
+				*(result + j) = SPECIAL_CHR;
 			strcpy(buffer, result);
 		}
 	}
+	free(buffer);
 	return NULL;
 }
 
-char* getOffset(char* filename, int index) {
+char* getOffset(char* filename, char* buff, int index) {
 	int nOffset = getNumberOfOffsets(filename);
 
 	if (index > nOffset) return "[!] Syntax error: Error with index";
 
-	FILE* fp = fopen(filename, "r");
-	char *buffer = (char *)malloc(fileSize(filename));
+	char* buffer = (char*)malloc(strlen(buff) + 1);
 	if (buffer == NULL) return MEM_ALLOC_ERR;
-	int c, i = 0;
-
-	while ((c = getc(fp)) != EOF)
-		*(buffer + i) = c, i++;
-	*(buffer + i) = NULL;
-	fclose(fp);
+	strcpy(buffer, buff);
 
 	char* result;
 	int searchLen = OFFSET_DEF_LEN;
@@ -137,73 +180,77 @@ char* getOffset(char* filename, int index) {
 		result = strstr(buffer, OFFSET_DEF);
 		if (!result) return NULL;
 
-		int pos = result - buffer;
-		int subLen = strlen(buffer) - pos;
-		int address = pos + searchLen;
+		int pos = result - buffer,
+			subLen = strlen(buffer) - pos,
+			address = pos + searchLen;
 
 		if (n == index) {
-			char* retBuffer = (char *)malloc(subLen);
+			char* retBuffer = (char*)malloc(subLen);
 			if (retBuffer == NULL) return MEM_ALLOC_ERR;
 
-			for (int c = address, j = 0; j < subLen; j++, c++) {
-				if (buffer[c] == NEW_LINE) {
+			int c = address, j = 0;
+			while (j < subLen)
+			{
+				if (*(buffer + c++) == NEW_LINE) {
+					free(buffer);
 					*(retBuffer + j) = NULL;
 					return retBuffer;
 				}
-				*(retBuffer + j) = *(buffer + c);
+				*(retBuffer + j++) = *(buffer + c - 1);
 			}
 		}
 		else {
-			for (int j = 0; j < searchLen; j++) *(result + j) = SPECIAL_KEY;
+			for (int j = 0; j < searchLen; j++)
+				*(result + j) = SPECIAL_CHR;
 			strcpy(buffer, result);
 		}
 	}
+	free(buffer);
 	return NULL;
 }
 
-char* getReplaced(char* filename, int index) {
+char* getReplaced(char* filename, char* buff, int index) {
 	int nReplaced = getNumberOfReplaceds(filename);
 
 	if (index > nReplaced) return "[!] Syntax error: Error with index";
 
-	FILE* fp = fopen(filename, "r");
-	char* buffer = (char*)malloc(fileSize(filename));
+	char* buffer = (char*)malloc(strlen(buff) + 1);
 	if (buffer == NULL) return MEM_ALLOC_ERR;
-	int c, i = 0;
-
-	while ((c = getc(fp)) != EOF)
-		*(buffer + i) = c, i++;
-	*(buffer + i) = NULL;
-	fclose(fp);
+	strcpy(buffer, buff);
 
 	char* result;
 	int searchLen = REPLACED_DEF_LEN;
 
 	for (int n = 0; n < nReplaced; n++) {
 		result = strstr(buffer, REPLACED_DEF);
-		if (!result) return 0;
+		if (!result) return NULL;
 
-		int pos = result - buffer;
-		int subLen = strlen(buffer) - pos;
-		int address = pos + searchLen;
+		int pos = result - buffer,
+			subLen = strlen(buffer) - pos,
+			address = pos + searchLen;
 
 		if (n == index) {
-			char* retBuffer = (char *)malloc(subLen);
+			char* retBuffer = (char*)malloc(subLen);
 			if (retBuffer == NULL) return MEM_ALLOC_ERR;
 
-			for (int c = address, j = 0; j < subLen; j++, c++) {
-				if (buffer[c] == NEW_LINE) {
+			int c = address, j = 0;
+			while (j < subLen)
+			{
+				if (*(buffer + c++) == NEW_LINE) {
+					free(buffer);
 					*(retBuffer + j) = NULL;
 					return retBuffer;
 				}
-				*(retBuffer + j) = *(buffer + c);
+				*(retBuffer + j++) = *(buffer + c - 1);
 			}
 		}
 		else {
-			for (int j = 0; j < searchLen; j++) *(result + j) = SPECIAL_KEY;
+			for (int j = 0; j < searchLen; j++)
+				*(result + j) = SPECIAL_CHR;
 			strcpy(buffer, result);
 		}
 	}
+	free(buffer);
 	return NULL;
 }
 

@@ -1,0 +1,10 @@
+HexPatch v1
+
+INCLUDE: libcocos2dcpp.so
+
+CODE: Change player name to ice
+OFFSET: 0xadacf6
+Edit 00 with characters as bytes no more than 6 characters, ICE for example
+REPLACED: 49 43 45 00 00 00
+
+END

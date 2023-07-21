@@ -47,54 +47,6 @@ char* getHPVersion(char* buff) {
 	return VERSION_U;
 }
 
-int getNumberOfCodes(char* fname) {
-	FILE* fp;
-	char str[20];
-	int counter = 0;
-
-	fp = fopen(fname, "r");
-	if (fp == NULL) return -1;
-
-	while (fscanf(fp, "%19s", str) == 1)
-		if (strcmp(str, "CODE:") == 0)	
-			counter++;
-
-	fclose(fp);
-	return counter;
-}
-
-int getNumberOfOffsets(char* fname) {
-	FILE* fp;
-	char str[20];
-	int counter = 0;
-
-	fp = fopen(fname, "r");
-	if (fp == NULL) return -1;
-
-	while (fscanf(fp, "%19s", str) == 1)
-		if (strcmp(str, "OFFSET:") == 0)
-			counter++;
-
-	fclose(fp);
-	return counter;
-}
-
-int getNumberOfReplaceds(char* fname) {
-	FILE* fp;
-	char str[20];
-	int counter = 0;
-
-	fp = fopen(fname, "r");
-	if (fp == NULL) return -1;
-
-	while (fscanf(fp, "%19s", str) == 1)
-		if (strcmp(str, "REPLACED:") == 0)
-			counter++;
-
-	fclose(fp);
-	return counter;
-}
-
 dbyte toHex(char c)
 {
 	if (isNum(c))
@@ -111,12 +63,12 @@ dbyte toHex(char c)
 dbyte* strh2hex(char* str, int* retLen) {
 	int len = strlen(str);
 	// Error handling
-	if (len == 0) return -2;
+	if (len == NULL) return -2;
 
 	dbyte* ret = (dbyte*)malloc(sizeof(dbyte) * len / 3);
 	// Error handling
 	if (ret == NULL) {
-		*retLen = 0;
+		*retLen = NULL;
 		return -1;
 	}
 
@@ -138,8 +90,8 @@ long strHOffset2Long(char *str)
 	if(str != NULL)
 	{
 		long ret;
-		int res = sscanf_s(str, "%lx", &ret);
-		return (res != 1) ? -1 : ret;
+		int Res = sscanf_s(str, "%lx", &ret);
+		return (Res == 1) ? ret : -1;
 	}
 	return -2;
 }
@@ -207,20 +159,25 @@ HexPatch v2
 
 %START
 
-.CODE
-.OFFSET: 0xabc0
-.ORIGINAL: 00 10 A0 E3
-.REPLACED: 01 10 A0 E3
+// comment
 
-.CODE
-.OFFSET: 0xabc0
-.ORIGINAL: 00 10 A0 E3 
-.REPLACED: 01
+CODE(
+.OFFSET   = 0xabc0
+.ORIGINAL = 00 10 A0 E3
+.REPLACED = 01 10 A0 E3
+)
 
-.CODE
-.OFFSET: 0xabc0
-.ORIGINAL: 00
-.REPLACED: 01
+CODE(
+.OFFSET= 0xabc0
+.ORIGINAL= 00 10 A0 E3 
+.REPLACED= 01
+)
+
+CODE(
+.OFFSET=0xabc0
+.ORIGINAL=00
+.REPLACED=01
+)
 
 %END
 */

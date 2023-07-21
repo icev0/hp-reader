@@ -1,0 +1,17 @@
+HexPatch v1
+
+INCLUDE: libcocos2dcpp.so
+
+CODE: Unlimited Health
+OFFSET: 0x57d8b0
+REPLACED: f0 4b 2d e9
+
+CODE: Unlimited Flying Power
+OFFSET: 0x57c770
+REPLACED: 00 48 2d e9 0d b0 a0 e1
+
+CODE: 1 Kill 10 Kill
+OFFSET: 0x56940c
+REPLACED: 01
+
+END
